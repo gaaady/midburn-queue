@@ -1,1 +1,0 @@
-web: ruby config.ru -e $RACK_ENV -p $PORT
