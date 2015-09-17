@@ -4,6 +4,9 @@ require 'json'
 require 'dotenv'; Dotenv.load
 require 'pry'
 
-get '/' do
-  "Hello liveLike!"
+class ResqueMe < Sinatra::Base
+
+	get '/' do
+	  "HELP!! Resque MEEE!"
+	end
 end
