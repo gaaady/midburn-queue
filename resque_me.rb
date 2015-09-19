@@ -32,12 +32,19 @@ class ResqueMe < Sinatra::Base
         <form id="form" action="test" method="POST">
           <div>
             <input type="text" name="url" id="url" placeholder="http://enter.some.url/some-plain-text-will-be-good.txt" 
-                   value="http://www.ccel.org/ccel/bible/kjv.txt" style="width: 80%; padding: 10px; margin: 10px;">
+                   value="http://www.gutenberg.org/cache/epub/1232/pg1232.txt" style="width: 80%; padding: 10px; margin: 10px;">
           </div>
           <div style="margin: 10px;">
             <input class="button radius right success" type="submit" value="Submit">
           </div>
         </form>
+        <div>
+          <ul>
+            <li>https://gist.github.com/eladg/65034b89fb694d46aca4, click on the raw button and paste whatever generated URL, small</l1>
+            <li>http://www.gutenberg.org/cache/epub/1232/pg1232.txt, The Prince by Niccolò Machiavelli, 299 kB</li>
+            <li>http://www.ccel.org/ccel/bible/kjv.txt, The Bible, 4.5MB</li>
+          </ul>
+        </div>
       </div>
     html
   end
