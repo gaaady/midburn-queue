@@ -7,6 +7,9 @@ require './resque_me.rb'
 
 use Rack::ShowExceptions
 
+$redis = Redis.new(url: ENV["REDIS_URL"])
+Resque.redis = $redis
+
 run Rack::URLMap.new \
   "/"       => ResqueMe.new,
   "/resque" => Resque::Server.new
