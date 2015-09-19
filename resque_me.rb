@@ -59,7 +59,7 @@ class ResqueMe < Sinatra::Base
       end
     end
 
-    # return html body.
+    # returned html body.
     "<h1>done! check out: /resque</h1>"
   end
 end

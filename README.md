@@ -4,6 +4,19 @@
 This is a resque (https://github.com/resque/resque) string enquing and worker test, deployed freely on Heroku.
 Based on Sinatra, this webapp will receive a URL of (potentially) a text file, downloaded it and enqueue each word as a resque job for a 2nd worker to process on. In time, the worker will wake up to process the background job.
 
+### Steps by step
+
+Assuming application deployed on Heroku, 
+
+1. open URL: https://resque-me.herokuapp.com/test
+2. Enter a test file URL, for example: http://www.gutenberg.org/cache/epub/1232/pg1232.txt
+3. Click submit.
+4. On a new tab open https://resque-me.herokuapp.com/resque, refresh every couple of seconds
+5. Jobs should be enqueing (assuming the text is long enough)
+6. Worker will process those background tasks one by one.
+
+### Code explained
+
 Sinatra web controller code:
 
 ### GET /test route
@@ -53,6 +66,17 @@ Split text to words and enqueue a new job
     rescue Exception => e
     end
   end
+```
+
+### Worker code
+```ruby
+class WordProcessorWorker
+  @queue = :worker
+  def self.perform(word)
+    puts ">> Processing: #{word}"
+    sleep(0.1)
+  end
+end
 ```
 
 ## Known Issues
