@@ -11,19 +11,17 @@ require "./worker.rb"
 
 class ResqueMe < Sinatra::Base
 
-  def split_chunk_and_enqueue(chunk)
+  def split_text_and_enqueue(text)
     begin
-      words = chunk.split(" ")
-      puts ">> Enqueue: will enqueue #{words.count} processing tasks."
+      words = text.split(" ")
       words.each { |w| Resque.enqueue(WordProcessorWorker, w) }
-      puts ">> Enqueue: done!"
-    # ignore exceptions
     rescue Exception => e
+      # ignore all exceptions
     end
   end
 
 	get '/' do
-	  "Resque MEEE!"
+	  "<h1><a href='https://github.com/eladg/resque-me'>See Github repo<a></h1>"
 	end
 
   get '/test' do
@@ -55,14 +53,13 @@ class ResqueMe < Sinatra::Base
     Net::HTTP.start(uri.host, uri.port, :use_ssl => (uri.scheme == 'https')) do |http|
       request = Net::HTTP::Get.new uri.request_uri
       http.request request do |response|
-        puts ">> HTTP: will read a chunk of the HTTP document"
         response.read_body do |chunk|
-          split_chunk_and_enqueue chunk
+          split_text_and_enqueue chunk
         end
-        puts ">> HTTP: done."
       end
     end
-    "done! check out: /resque"
-  end
 
+    # return html body.
+    "<h1>done! check out: /resque</h1>"
+  end
 end
