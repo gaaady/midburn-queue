@@ -10,3 +10,8 @@ end
 
 desc "Alias for resque:work (To run workers on Heroku)"
 task "jobs:work" => "resque:work"
+
+desc "assets:precompile"
+task "assets:precompile" do
+  # nothing to precompile
+end
