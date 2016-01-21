@@ -39,6 +39,10 @@ class ResqueMe < Sinatra::Base
     return false
   end
 
+  get '/pry-console' do
+    binding.pry
+  end
+
   get '/' do
     redirect "http://midburn.org"
   end
@@ -51,7 +55,8 @@ class ResqueMe < Sinatra::Base
       Resque.peek(queue, 0, TIER_SIZE).find_all do |job| 
         args = JSON.parse(job["args"][0])
 
-        ip, timestamp, email, ip_appearance = args["ip"], args["timestamp"], args["email"], count_ip_appearance(data, ip)
+        ip, timestamp, email = args["ip"], args["timestamp"], args["email"]
+        ip_appearance = count_ip_appearance(data, ip)
         data << [ queue, ip, timestamp, email, ip_appearance ] unless duplicate_email? data, email
       end
     end
