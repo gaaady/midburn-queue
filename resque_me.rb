@@ -11,10 +11,6 @@ TIER_SIZE = ENV["QUEUE_TIER_SIZE"]
 
 class ResqueMe < Sinatra::Base
 
-  def log_request
-    logger.info "======== GOT REQUEST ========\n#{request.body.read}\n\n======== GOT REQUEST ========\n"
-  end
-
   def get_params
     JSON.parse(request.body.read)
   end
@@ -22,15 +18,6 @@ class ResqueMe < Sinatra::Base
 	get '/' do
     redirect "http://midburn.org"
 	end
-
-  get '/redis' do
-    begin
-      Resque.info
-      "OK"
-    rescue Exception => e
-      "Failed"
-    end
-  end
 
   post '/big-reset' do
     payload = get_params
