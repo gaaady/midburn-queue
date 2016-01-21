@@ -3,6 +3,7 @@ require "sinatra"
 require "dotenv"; Dotenv.load
 
 # application space
+require "pry"
 require "redis"
 require "resque"
 require "csv"
@@ -27,6 +28,13 @@ class ResqueMe < Sinatra::Base
     halt 403
   end
 
+  def duplicate_email?(data, email)
+    data.each do |args|
+      return true if (args[3] == email)
+    end
+    return false
+  end
+
   get '/' do
     redirect "http://midburn.org"
   end
@@ -38,7 +46,7 @@ class ResqueMe < Sinatra::Base
     Resque.queues.each do |queue|
       Resque.peek(queue, 0, TIER_SIZE).find_all do |job| 
         args = JSON.parse(job["args"][0])
-        data << [ queue, args["ip"], args["timestamp"], args["email"] ] # https://midburnos.slack.com/archives/secondsale/p1453391566000263
+        data << [ queue, args["ip"], args["timestamp"], args["email"] ] unless duplicate_email? data, args["email"]
       end
     end
 
