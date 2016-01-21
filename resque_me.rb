@@ -1,65 +1,70 @@
 # environment space
-require 'sinatra'
-require 'dotenv'; Dotenv.load
-require "redis"
-require "resque"
+require "sinatra"
+require "dotenv"; Dotenv.load
 
 # application space
-require 'open-uri'
-require 'net/http'
+require "redis"
+require "resque"
 require "./worker.rb"
+
+TIER_SIZE = 5
 
 class ResqueMe < Sinatra::Base
 
-  def split_text_and_enqueue(text)
-    begin
-      words = text.split(" ")
-      words.each { |w| Resque.enqueue(WordProcessorWorker, w) }
-    rescue Exception => e
-      # ignore all exceptions
-    end
+  def log_request
+    logger.info "======== GOT REQUEST ========\n#{request.body.read}\n\n======== GOT REQUEST ========\n"
+  end
+
+  def get_params
+    JSON.parse(request.body.read)
   end
 
 	get '/' do
-	  "<h1><a href='https://github.com/eladg/resque-me'>See Github repo<a></h1>"
+    redirect "http://midburn.org"
 	end
 
-  get '/test' do
-    <<-html
-      <div>
-        <form id="form" action="test" method="POST">
-          <div>
-            <input type="text" name="url" id="url" placeholder="http://enter.some.url/some-plain-text-will-be-good.txt" 
-                   value="http://www.gutenberg.org/cache/epub/1232/pg1232.txt" style="width: 80%; padding: 10px; margin: 10px;">
-          </div>
-          <div style="margin: 10px;">
-            <input class="button radius right success" type="submit" value="Submit">
-          </div>
-        </form>
-        <div>
-          <ul>
-            <li>https://gist.github.com/eladg/65034b89fb694d46aca4, click on the raw button and paste whatever generated URL, small</l1>
-            <li>http://www.gutenberg.org/cache/epub/1232/pg1232.txt, The Prince by Niccolò Machiavelli, 299 kB</li>
-            <li>http://www.ccel.org/ccel/bible/kjv.txt, The Bible, 4.5MB</li>
-          </ul>
-        </div>
-      </div>
-    html
+  get '/redis' do
+    begin
+      Resque.info
+      "OK"
+    rescue Exception => e
+      "Failed"
+    end
   end
 
-  post '/test' do
-    url = params["url"]    
-    uri = URI(url)
-    Net::HTTP.start(uri.host, uri.port, :use_ssl => (uri.scheme == 'https')) do |http|
-      request = Net::HTTP::Get.new uri.request_uri
-      http.request request do |response|
-        response.read_body do |chunk|
-          split_text_and_enqueue chunk
-        end
+  post '/big-reset' do
+    payload = get_params
+    if payload["secret_token"] == ENV["admin_secret_token"]
+      logger.info "Performing big reset. Removing all tasks from all queues!"
+      queues = Resque.queues
+      queues.each do |queue_name|
+        logger.info "Clearing #{queue_name}..."
+        Resque.remove_queue "#{queue_name}"
+        Resque.redis.del "queue:#{queue_name}"
       end
+      
+      logger.info "Clearing delayed..." # in case of scheduler - doesn't break if no scheduler module is installed
+      Resque.redis.keys("delayed:*").each do |key|
+        Resque.redis.del "#{key}"
+      end
+      Resque.redis.del "delayed_queue_schedule"
+      
+      logger.info "Clearing stats..."
+      Resque.redis.set "stat:failed", 0 
+      Resque.redis.set "stat:processed", 0
+      logger.info "Done."
+    else
+      logger.error "tried to reset DB with wrong admin secret token!"
     end
 
-    # returned html body.
-    "<h1>done! check out: /resque</h1>"
   end
+
+  post '/enqueue' do
+    payload = get_params
+    order_json = %{{"firstname":"#{payload["firstname"]}","lastname":"#{payload["lastname"]}","email":"#{payload["email"]}"}}
+
+    tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE
+    Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
+  end
+
 end
