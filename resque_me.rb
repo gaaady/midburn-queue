@@ -50,7 +50,7 @@ class ResqueMe < Sinatra::Base
     payload = get_params
     order_json = %{{"firstname":"#{payload["firstname"]}","lastname":"#{payload["lastname"]}","email":"#{payload["email"]}"}}
 
-    tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE
+    tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE.to_i
     Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
   end
 
