@@ -15,9 +15,9 @@ class ResqueMe < Sinatra::Base
     JSON.parse(request.body.read)
   end
 
-	get '/' do
+  get '/' do
     redirect "http://midburn.org"
-	end
+  end
 
   post '/big-reset' do
     payload = get_params
