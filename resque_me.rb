@@ -28,6 +28,10 @@ class ResqueMe < Sinatra::Base
     halt 403
   end
 
+  def count_ip_appearance(data, ip)
+    data.count { |e| e[1] == ip }
+  end
+
   def duplicate_email?(data, email)
     data.each do |args|
       return true if (args[3] == email)
@@ -46,7 +50,9 @@ class ResqueMe < Sinatra::Base
     Resque.queues.each do |queue|
       Resque.peek(queue, 0, TIER_SIZE).find_all do |job| 
         args = JSON.parse(job["args"][0])
-        data << [ queue, args["ip"], args["timestamp"], args["email"] ] unless duplicate_email? data, args["email"]
+
+        ip, timestamp, email, ip_appearance = args["ip"], args["timestamp"], args["email"], count_ip_appearance(data, ip)
+        data << [ queue, ip, timestamp, email, ip_appearance ] unless duplicate_email? data, email
       end
     end
 
