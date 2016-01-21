@@ -7,7 +7,7 @@ require "redis"
 require "resque"
 require "./worker.rb"
 
-TIER_SIZE = ENV["QUEUE_TIER_SIZE"]
+TIER_SIZE = ENV["QUEUE_TIER_SIZE"].to_i
 
 class ResqueMe < Sinatra::Base
 
@@ -49,8 +49,10 @@ class ResqueMe < Sinatra::Base
   post '/enqueue' do
     payload = get_params
     order_json = %{{"firstname":"#{payload["firstname"]}","lastname":"#{payload["lastname"]}","email":"#{payload["email"]}"}}
+    order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
     tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE.to_i
+    tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE
     Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
   end
 
