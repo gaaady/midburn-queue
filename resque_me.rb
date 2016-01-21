@@ -7,7 +7,7 @@ require "redis"
 require "resque"
 require "./worker.rb"
 
-TIER_SIZE = 5
+TIER_SIZE = ENV["QUEUE_TIER_SIZE"]
 
 class ResqueMe < Sinatra::Base
 
@@ -34,7 +34,7 @@ class ResqueMe < Sinatra::Base
 
   post '/big-reset' do
     payload = get_params
-    if payload["secret_token"] == ENV["admin_secret_token"]
+    if payload["admin_secret_token"] == ENV["ADMIN_SECRET_TOKEN"]
       logger.info "Performing big reset. Removing all tasks from all queues!"
       queues = Resque.queues
       queues.each do |queue_name|
