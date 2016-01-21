@@ -2,6 +2,15 @@
 
 ### What is this?
 
+This is Midburn's tickets processing queue. Each batch of order requests submitters (say 100 orders) will be enqueue into an ordered queue (say: tier_001) which will be processed later by a worder.
+
+Navigate to `/resque` to follow processing order (or clearing past tasks).
+
+Submit a new order by `POST /enqueue` with a JSON file and `Content-Type: application/json`. The following curl command will work:
+
+```
+curl -X POST http://midburn-tickets-queue.herokuapp.com/enqueue -d '{"firstname": "elad", "lastname": "gariany", "email":"email@gmail.com"}' --header "Content-Type: application/json"
+```
 
 ### Application Routes
 
@@ -47,6 +56,16 @@ post '/enqueue' do
   # Add a new task to order on the relevant queue.
 end
 ```
+
+The following `curl` command will queue a new order to process:
+```
+curl -X POST http://midburn-tickets-queue.herokuapp.com/enqueue -d '{"firstname": "elad", "lastname": "gariany", "email":"email@gmail.com"}' --header "Content-Type: application/json"       
+```
+
+##### Params
+- `firstname` - Submitter's first name.
+- `lastname` - Submitter's last name.
+- `email` - Submitter's email address (profile on profile.midburn.org)
 
 ### Known Issues
 - Orders in the system are limited to 500 * QUEUE_TIER_SIZE (say, 50,000 in case each tier size is 100).
