@@ -15,3 +15,20 @@ desc "assets:precompile"
 task "assets:precompile" do
   # nothing to precompile
 end
+
+desc "pry console into the system"
+task :pry_admin do
+  require "pry"
+  binding.pry
+end
+
+desc "Stress test an endpoint with enqueues"
+task "test:stress_test" do
+  host_url = "https://midburn-queue.herokuapp.com/enqueue"
+  100.times do |index|
+    email = "email_#{index}@gariany.com"
+    RestClient.post host_url, { "email" => email }.to_json, :content_type => :json, :accept => :json do |response, request, result, &block|
+      puts "sent #{email}"
+    end
+  end
+end
