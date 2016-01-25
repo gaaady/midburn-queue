@@ -24,11 +24,22 @@ end
 
 desc "Stress test an endpoint with enqueues"
 task "test:stress_test" do
+
   host_url = "https://midburn-queue.herokuapp.com/enqueue"
-  100.times do |index|
-    email = "email_#{index}@gariany.com"
-    RestClient.post host_url, { "email" => email }.to_json, :content_type => :json, :accept => :json do |response, request, result, &block|
-      puts "sent #{email}"
+  tester_name = ('a'..'z').to_a.shuffle[0,8].join
+
+  threads = []
+  10.times do |thread_index|
+    threads << Thread.new(thread_index) do
+      100.times do |index|
+        time = Time.now
+        email = "#{tester_name}_thread_#{thread_index}_index_#{index}@gariany.com"
+        RestClient.post host_url, { "email" => email }.to_json, :content_type => :json, :accept => :json do |response, request, result, &block|
+          puts "thread #{thread_index}: finished #{email}. Took: #{Time.now - time}"
+        end
+      end
     end
   end
+
+  threads.each { |aThread|  aThread.join }
 end
