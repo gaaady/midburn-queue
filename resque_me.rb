@@ -44,8 +44,8 @@ class ResqueMe < Sinatra::Base
     return false
   end
 
-  def queue_open?
-    ENV["QUEUE_IS_LIVE"] == "true"
+  def queue_is_open?
+    ENV["QUEUE_IS_OPEN"] == "true"
   end
 
   get '/' do
@@ -55,8 +55,8 @@ class ResqueMe < Sinatra::Base
   post '/status' do
     response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
     response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
-
-    status = queue_open? ? 200 : 403
+ 
+    status = queue_is_open? ? 200 : 403
     halt(status)
   end
 
@@ -113,7 +113,7 @@ class ResqueMe < Sinatra::Base
     payload = get_params
     order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
-    if queue_open?
+    if queue_is_open?
       tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE
       Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
     else
