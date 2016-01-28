@@ -101,4 +101,10 @@ class ResqueMe < Sinatra::Base
     Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
   end
 
+  options '/enqueue' do
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST"
+    halt 200
+  end
+
 end
