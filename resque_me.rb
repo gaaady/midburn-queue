@@ -44,6 +44,10 @@ class ResqueMe < Sinatra::Base
     return false
   end
 
+  def queue_open?
+    ENV["QUEUE_IS_LIVE"] == "true"
+  end
+
   get '/' do
     redirect "http://midburn.org"
   end
@@ -52,7 +56,7 @@ class ResqueMe < Sinatra::Base
     response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
     response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
 
-    status = ENV["QUEUE_IS_LIVE"] == "true" ? 200 : 403
+    status = queue_open? ? 200 : 403
     halt(status)
   end
 
@@ -109,8 +113,13 @@ class ResqueMe < Sinatra::Base
     payload = get_params
     order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
-    tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE
-    Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
+    if queue_open?
+      tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE
+      Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
+    else
+      Resque.enqueue(BannedOrder, order_json)
+      halt(403)
+    end
   end
 
   options "*" do
