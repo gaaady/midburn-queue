@@ -44,12 +44,13 @@ class ResqueMe < Sinatra::Base
     return false
   end
 
-  get '/pry-console' do
-    binding.pry
-  end
-
   get '/' do
     redirect "http://midburn.org"
+  end
+
+  post '/status' do
+    status = ENV["QUEUE_IS_LIVE"].nil? ? 200 : 403
+    halt(status)
   end
 
   post '/list' do
