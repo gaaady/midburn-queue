@@ -52,7 +52,7 @@ class ResqueMe < Sinatra::Base
     response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
     response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
 
-    status = ENV["QUEUE_IS_LIVE"].nil? ? 200 : 403
+    status = ENV["QUEUE_IS_LIVE"].nil? ? 403 : 200
     halt(status)
   end
 
