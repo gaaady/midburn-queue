@@ -49,6 +49,9 @@ class ResqueMe < Sinatra::Base
   end
 
   post '/status' do
+    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+    response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
+
     status = ENV["QUEUE_IS_LIVE"].nil? ? 200 : 403
     halt(status)
   end
