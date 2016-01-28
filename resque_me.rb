@@ -1,5 +1,6 @@
 # environment space
 require "sinatra"
+require 'sinatra/cross_origin'
 require "dotenv"; Dotenv.load
 
 # application space
@@ -12,6 +13,10 @@ require "./worker.rb"
 TIER_SIZE = ENV["QUEUE_TIER_SIZE"].to_i
 
 class ResqueMe < Sinatra::Base
+
+  configure do
+    enable :cross_origin
+  end  
 
   def get_params
     JSON.parse(request.body.read)
@@ -94,6 +99,7 @@ class ResqueMe < Sinatra::Base
   end
 
   post '/enqueue' do
+    cross_origin
     payload = get_params
     order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
@@ -101,10 +107,9 @@ class ResqueMe < Sinatra::Base
     Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
   end
 
-  options '/enqueue' do
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "POST"
-    halt 200
+  options "*" do
+    response.headers["Allow"] = "HEAD,POST,OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+    200
   end
-
 end
