@@ -99,7 +99,6 @@ class ResqueMe < Sinatra::Base
   end
 
   post '/enqueue' do
-    cross_origin
     payload = get_params
     order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
