@@ -1,8 +1,10 @@
 require "bundler/setup"
 Bundler.require(:default)
-require './resque_me'
-require './worker'
 require 'resque/tasks'
+
+require './midburn_queue'
+require './worker'
+require "./rake_helper"
 
 task "resque:setup" do
   ENV['QUEUE'] = '*'
@@ -17,13 +19,13 @@ task "assets:precompile" do
 end
 
 desc "pry console into the system"
-task :pry_admin do
+task "midburn:console" do
   require "pry"
   binding.pry
 end
 
 desc "Stress test an endpoint with enqueues"
-task "test:stress_test" do
+task "midburn:stress_test" do
 
   host_url = "https://midburn-queue.herokuapp.com/enqueue"
   tester_name = ('a'..'z').to_a.shuffle[0,8].join
@@ -42,4 +44,17 @@ task "test:stress_test" do
   end
 
   threads.each { |aThread|  aThread.join }
+end
+
+desc "Reset the queue completely"
+task "midburn:reset" do
+  STDOUT.puts "Reset the queue completely? (y/n)"
+  input = STDIN.gets.chomp
+  reset_queue! if input == "y"
+end
+
+desc "Get List in CSV format"
+task "midburn:list" do
+  data = collect_orders
+  puts generate_csv(data)
 end
