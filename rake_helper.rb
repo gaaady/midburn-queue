@@ -28,13 +28,13 @@ end
 
 def collect_orders
   data = []
-  Resque.peek("TicketsQueue", 0, Resque.size("TicketsQueue")).find_all do |job| 
-    args = JSON.parse(job["args"][0])
+  Resque.redis.lrange("queue:tickets_queue", 0, -1).each do |job|
+    args = JSON.parse(JSON.parse(job)["args"][0])
     ip, timestamp, email = args["ip"], args["timestamp"], args["email"]
     ip_appearance = data.count { |e| e[1] == ip }
     data << [ "TicketsQueue", ip, timestamp, email, ip_appearance ] unless duplicate_email? data, email
   end
-  data  
+  data
 end
 
 def generate_csv(data)

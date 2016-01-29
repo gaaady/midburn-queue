@@ -46,6 +46,15 @@ task "midburn:stress_test" do
   threads.each { |aThread|  aThread.join }
 end
 
+desc "enqueue 1000 random orders"
+task "midburn:enqueue" do
+  1000.times do
+    order_json = %{{"ip":"12.#{rand(100)}.#{rand(100)}.#{rand(100)}","timestamp":"#{Time.now.to_i}","email":"#{(0...8).map { ('a'..'z').to_a[rand(26)] }.join}@gmail.com"}}
+    puts "New: #{order_json}"
+    Resque.enqueue(TicketsQueue, order_json)
+  end
+end
+
 desc "Reset the queue completely"
 task "midburn:reset" do
   STDOUT.puts "Reset the queue completely? (y/n)"
