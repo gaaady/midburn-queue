@@ -28,13 +28,11 @@ end
 
 def collect_orders
   data = []
-  Resque.queues.each do |queue|
-    Resque.peek(queue, 0, MidburnQueue::TIER_SIZE).find_all do |job| 
-      args = JSON.parse(job["args"][0])
-      ip, timestamp, email = args["ip"], args["timestamp"], args["email"]
-      ip_appearance = data.count { |e| e[1] == ip }
-      data << [ queue, ip, timestamp, email, ip_appearance ] unless duplicate_email? data, email
-    end
+  Resque.peek("TicketsQueue", 0, Resque.size("TicketsQueue")).find_all do |job| 
+    args = JSON.parse(job["args"][0])
+    ip, timestamp, email = args["ip"], args["timestamp"], args["email"]
+    ip_appearance = data.count { |e| e[1] == ip }
+    data << [ "TicketsQueue", ip, timestamp, email, ip_appearance ] unless duplicate_email? data, email
   end
   data  
 end

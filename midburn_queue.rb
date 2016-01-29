@@ -11,8 +11,6 @@ require "csv"
 require "./worker.rb"
 
 class MidburnQueue < Sinatra::Base
-  TIER_SIZE = ENV["QUEUE_TIER_SIZE"].to_i
-
   configure do
     enable :cross_origin
   end  
@@ -52,8 +50,7 @@ class MidburnQueue < Sinatra::Base
     order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
     if queue_is_open?
-      tier_number = (Resque.info[:pending] + Resque.info[:processed]).div TIER_SIZE
-      Resque.enqueue(eval("OrderTier_#{tier_number}"), order_json)
+      Resque.enqueue(TicketsQueue, order_json)
     else
       Resque.enqueue(BannedOrder, order_json)
       halt(403)
