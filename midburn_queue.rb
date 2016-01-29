@@ -20,7 +20,7 @@ class MidburnQueue < Sinatra::Base
   end
 
   def queue_is_open?
-    ENV["QUEUE_IS_OPEN"] == "true"
+    Resque.redis.get("queue_is_open") == "true"
   end
 
   get '/' do

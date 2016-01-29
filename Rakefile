@@ -73,3 +73,17 @@ task "midburn:list" do
   puts "Get results using:"
   puts "aws s3 cp s3://midburn-queue-results/#{filename} results.csv"
 end
+
+desc "open the queue"
+task "midburn:open_queue" do
+  Resque.redis.set "queue_is_open", "true"
+  puts "done!"
+end
+
+desc "close the queue"
+task "midburn:close_queue" do
+  Resque.redis.set "queue_is_open", "false"
+  puts "done!"
+end
+
+
