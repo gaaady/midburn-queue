@@ -56,5 +56,9 @@ end
 desc "Get List in CSV format"
 task "midburn:list" do
   data = collect_orders
+  puts "=============================="
+  puts "found #{data.count} records."
+  puts "=============================="
   puts generate_csv(data)
+  puts "=============================="
 end
