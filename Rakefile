@@ -56,9 +56,11 @@ end
 desc "Get List in CSV format"
 task "midburn:list" do
   data = collect_orders
-  puts "=============================="
-  puts "found #{data.count} records."
-  puts "=============================="
-  puts generate_csv(data)
-  puts "=============================="
+  csv = generate_csv(data)
+  
+  filename = "#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.results.csv"
+  upload_results_to_s3 filename, csv
+
+  puts "Get results using:"
+  puts "aws s3 cp https://s3-eu-west-1.amazonaws.com/midburn-queue-results/#{filename} results.csv"
 end

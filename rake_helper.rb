@@ -45,3 +45,11 @@ def generate_csv(data)
     data.each { |r| csv << r }
   end
 end
+
+def upload_results_to_s3(key, data)
+
+  require 'aws-sdk'
+  s3 = Aws::S3::Resource.new(region:'eu-west-1')
+  obj = s3.bucket('midburn-queue-results').object(key)
+  obj.put(body: data)
+end
