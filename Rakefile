@@ -62,5 +62,5 @@ task "midburn:list" do
   upload_results_to_s3 filename, csv
 
   puts "Get results using:"
-  puts "aws s3 cp https://s3-eu-west-1.amazonaws.com/midburn-queue-results/#{filename} results.csv"
+  puts "aws s3 cp s3://midburn-queue-results/#{filename} results.csv"
 end
