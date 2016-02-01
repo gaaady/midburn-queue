@@ -27,6 +27,7 @@ GEM
     pry-byebug (3.3.0)
       byebug (~> 8.0)
       pry (~> 0.10)
+    puma (2.16.0)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
@@ -64,6 +65,7 @@ DEPENDENCIES
   aws-sdk
   dotenv
   pry-byebug
+  puma
   rake
   resque
   rest-client

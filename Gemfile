@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.2.3'
 
+gem 'puma'
 gem 'rake'
 gem 'sinatra'
 gem "sinatra-cross_origin"
