@@ -15,6 +15,17 @@ class MidburnQueue < Sinatra::Base
     enable :cross_origin
   end  
 
+  set(:method) do |method|
+    method = method.to_s.upcase
+    condition { request.request_method == method }
+  end
+
+  before :method => :post do
+    # http://stackoverflow.com/questions/15671006/before-filter-for-all-post-requests-in-sinatra
+    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+    response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
+  end 
+
   def get_params
     JSON.parse(request.body.read)
   end
@@ -23,29 +34,17 @@ class MidburnQueue < Sinatra::Base
     Resque.redis.get("queue_is_open") == "true"
   end
 
-  get '/' do
-    redirect "http://midburn.org"
-  end
-
   options "*" do
     response.headers["Allow"] = "HEAD,POST,OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
-    response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
     200
   end
 
-  post '/status' do
-    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
-    response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
- 
+  post '/status' do 
     status = queue_is_open? ? 200 : 403
     halt(status)
   end
 
   post '/enqueue' do
-    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
-    response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
-
     payload = get_params
     order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
