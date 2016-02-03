@@ -41,9 +41,9 @@ class MidburnQueue < Sinatra::Base
     200
   end
 
-  post '/status' do 
-    status = queue_is_open? ? 200 : 403
-    halt(status)
+  post '/status' do
+    halt(403) if not queue_is_open?
+    { register_page: ENV["REGISTER_FORM_URL"] }.to_json
   end
 
   post '/enqueue' do
