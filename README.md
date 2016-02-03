@@ -42,11 +42,6 @@ post '/big-reset' do
 end
 ```
 
-The following is a simple curl command which will reset the queues:
-```
-curl -X POST http://midburn-tickets-queue.herokuapp.com/big-reset -d '{"admin_secret_token":"XXXXX"}' --header "Content-Type: application/json"
-```
-
 ###### Params
 `admin_secret_token` - the environment's admin secret key
 
