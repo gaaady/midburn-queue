@@ -46,7 +46,7 @@ class MidburnQueue < Sinatra::Base
     { register_page: ENV["REGISTER_FORM_URL"] }.to_json
   end
 
-  post '/enqueue' do
+  post '/register' do
     payload = get_params
     order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
 
