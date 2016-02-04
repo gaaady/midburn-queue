@@ -42,11 +42,6 @@ post '/big-reset' do
 end
 ```
 
-The following is a simple curl command which will reset the queues: 
-```
-curl -X POST http://midburn-tickets-queue.herokuapp.com/big-reset -d '{"admin_secret_token":"2ch78SdFsayfp"}' --header "Content-Type: application/json"
-```
-
 ###### Params
 `admin_secret_token` - the environment's admin secret key
 
@@ -92,6 +87,22 @@ class OrderTier_1
   end
 end
 ```
+
+## Configuration (Heroku)
+1. Close the queue:
+`heroku run bundle exec rake midburn:close_queue --app midburn-queue`
+
+2. Open the queue:
+`heroku run bundle exec rake midburn:open_queue  --app midburn-queue`
+
+3. Getting the list of emails in the queue
+`heroku run bundle exec rake midburn:list --app midburn-queue`
+
+4. Reset queue:
+`heroku run bundle exec rake midburn:reset --app midburn-queue`
+
+5. Checking the heroku logs:
+`heroku logs -t --app midburn-queue`
 
 ## LICENSE
 The MIT License (MIT)
