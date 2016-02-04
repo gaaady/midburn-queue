@@ -48,7 +48,7 @@ class MidburnQueue < Sinatra::Base
 
   post '/register' do
     payload = get_params
-    order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["email"]}"}}
+    order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["username"]}"}}
 
     if queue_is_open?
       Resque.enqueue(TicketsQueue, order_json)
