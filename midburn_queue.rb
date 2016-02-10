@@ -30,7 +30,11 @@ class MidburnQueue < Sinatra::Base
   end 
 
   def get_params
-    JSON.parse(request.body.read)
+    begin
+      JSON.parse(request.body.read)
+    rescue Exception => e
+      {}
+    end
   end
 
   def queue_is_open?
