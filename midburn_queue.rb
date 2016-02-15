@@ -24,13 +24,17 @@ class MidburnQueue < Sinatra::Base
     # http://stackoverflow.com/questions/15671006/before-filter-for-all-post-requests-in-sinatra
     response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
     response.headers["Access-Control-Allow-Origin"] = ENV["ACCESS_CONTROL_ALLOW_ORIGIN"]
+
+    load_params
   end 
 
-  def get_params
+  def load_params
+    return @params if @request_body_read
     begin
-      JSON.parse(request.body.read)
+      @params = JSON.parse(request.body.read)
+      @request_body_read = true
     rescue Exception => e
-      {}
+      @params = {}
     end
   end
 
@@ -51,10 +55,10 @@ class MidburnQueue < Sinatra::Base
   end
 
   post '/register' do
-    puts "[access log] POST: #{get_params}" # put a little access log
+    halt(400) if params["username"].empty?
 
-    payload = get_params
-    order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{payload["username"]}"}}
+    puts "[access log] POST: #{params}" # put a little access log
+    order_json = %{{"ip":"#{request.ip}","timestamp":"#{Time.now.to_i}","email":"#{params["username"]}"}}
 
     if queue_is_open?
       Resque.enqueue(TicketsQueue, order_json)
