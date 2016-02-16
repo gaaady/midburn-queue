@@ -10,3 +10,8 @@ gem 'dotenv'
 gem 'pry-byebug'
 gem 'rest-client'
 gem 'aws-sdk'
+
+group :test do
+  gem "rspec"
+  gem "rack-test"
+end
